@@ -25,6 +25,7 @@ namespace market_scraper
         public MainPage()
         {
             this.InitializeComponent();
+            Console.WriteLine("DAB");
         }
     }
 }
