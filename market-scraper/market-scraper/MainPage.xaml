@@ -9,6 +9,20 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-
+        <StackPanel>
+            <TextBox x:Name="tbSettingText"
+                     TextWrapping="Wrap"
+                     VerticalAlignment="Top"
+                     Height="300"
+                     Width="400"
+                     Margin="10"
+                     IsReadOnly="True"/>
+            <Button x:Name="btnRetrieveData"
+                    Content="Retrieve Data"
+                    HorizontalAlignment="Left"
+                    Margin="10"
+                    VerticalAlignment="Top"
+                    Click="btnRetrieveData_Click"/>
+        </StackPanel>
     </Grid>
 </Page>
