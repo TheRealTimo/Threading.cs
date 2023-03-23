@@ -9,11 +9,18 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <StackPanel>
-        <TextBox x:Name="SearchTermTextBox" Header="Search Term" />
-        <TextBox x:Name="MaxThreadsTextBox" Header="Max Threads" Text="5"/>
-        <TextBox x:Name="PageNumTextBox" Header="Page Numbers" Text="5" />
-        <Button x:Name="SearchButton" Content="Search" Click="SearchButton_Click" />
-        <controls:DataGrid x:Name="ProductsDataGrid" AutoGenerateColumns="True" />
-    </StackPanel>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <TextBox x:Name="SearchTermTextBox" Header="Search Term" Text="Airforce One"/>
+            <TextBox x:Name="MaxThreadsTextBox" Header="Max Threads" Text="5"/>
+            <TextBox x:Name="PageNumTextBox" Header="Page Numbers" Text="1" />
+            <Button x:Name="SearchButton" Content="Search" Click="SearchButton_Click" />
+            
+            <controls:DataGrid x:Name="ProductsDataGrid" AutoGenerateColumns="True"  Height="400" Width="500"/>
+            
+            <TextBlock x:Name="MinPriceTextBlock" Text="Minimum Price: " />
+            <TextBlock x:Name="MaxPriceTextBlock" Text="Maximum Price: " />
+            <TextBlock x:Name="AvgPriceTextBlock" Text="Average Price: " />
+        </StackPanel>
+    </ScrollViewer>
 </Page>

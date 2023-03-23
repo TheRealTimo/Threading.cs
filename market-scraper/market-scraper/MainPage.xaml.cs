@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.ServiceModel.Channels;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using HtmlAgilityPack;
 using Fizzler.Systems.HtmlAgilityPack;
+using System.Globalization;
 
 namespace market_scraper
 {
@@ -24,17 +27,25 @@ namespace market_scraper
 
 
             var products = await FetchAmazonPrices(searchTerm, maxThreads, pageNum);
-
             ProductsDataGrid.ItemsSource = products;
+            
+            CultureInfo culture = new CultureInfo("nl-NL");
+            //CultureInfo needed to let the system know that the decimal separator is a comma and not a dot on amazon
+            
+            double minPrice = products.Min(p => double.Parse(p.Price.Replace("€", ""), culture));
+            double maxPrice = products.Max(p => double.Parse(p.Price.Replace("€", ""), culture));
+            double avgPrice = products.Average(p => double.Parse(p.Price.Replace("€", ""), culture));
+            
+            MinPriceTextBlock.Text += minPrice.ToString("0.00", culture);
+            MaxPriceTextBlock.Text += maxPrice.ToString("0.00", culture);
+            AvgPriceTextBlock.Text += avgPrice.ToString("0.00", culture);
         }
 
         private async Task<List<AmazonProduct>> FetchAmazonPrices(string searchTerm, int maxThreads, int pageNum)
         {
             var products = new List<AmazonProduct>();
             var sem = new SemaphoreSlim(maxThreads);
-
             
-
             async Task ScrapePage(int page)
             {
                 await sem.WaitAsync();
@@ -78,11 +89,5 @@ namespace market_scraper
 
             return products;
         }
-    }
-
-    public class AmazonProduct
-    {
-        public string Name { get; set; }
-        public string Price { get; set; }
     }
 }
