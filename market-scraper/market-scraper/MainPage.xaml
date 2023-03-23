@@ -5,10 +5,15 @@
     xmlns:local="using:market_scraper"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-
-    </Grid>
+    <StackPanel>
+        <TextBox x:Name="SearchTermTextBox" Header="Search Term" />
+        <TextBox x:Name="MaxThreadsTextBox" Header="Max Threads" Text="5"/>
+        <TextBox x:Name="PageNumTextBox" Header="Page Numbers" Text="5" />
+        <Button x:Name="SearchButton" Content="Search" Click="SearchButton_Click" />
+        <controls:DataGrid x:Name="ProductsDataGrid" AutoGenerateColumns="True" />
+    </StackPanel>
 </Page>
