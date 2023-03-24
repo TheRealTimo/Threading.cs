@@ -5,7 +5,7 @@
     xmlns:local="using:market_scraper"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-   xmlns:charting="using:WinRTXamlToolkit.Controls.DataVisualization.Charting"
+    xmlns:chart="using:WinRTXamlToolkit.Controls.DataVisualization.Charting"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -26,8 +26,16 @@
                     Click="btnRetrieveData_Click" RenderTransformOrigin="7.155,2.109" Foreground="White" Background="#2AFFFFFF" BorderBrush="#83FFFFFF"/>
 
         </StackPanel>
-        <charting:Chart x:Name="myLineChart">
-            <charting:LineSeries x:Name="myLineSeries" Title="Sold Prices" DependentValueBinding="{Binding soldPrice}" IndependentValuePath="Index" />
-        </charting:Chart>
+        <chart:Chart Name="MyChart">
+            <chart:Chart.Series>
+                <chart:LineSeries Title="Sales">
+                    <chart:DataPoint XValue="Jan" YValue="100" />
+                    <chart:DataPoint XValue="Feb" YValue="200" />
+                    <chart:DataPoint XValue="Mar" YValue="300" />
+                    <chart:DataPoint XValue="Apr" YValue="250" />
+                    <chart:DataPoint XValue="May" YValue="400" />
+                </chart:LineSeries>
+            </chart:Chart.Series>
+        </chart:Chart>
     </Grid>
 </Page>

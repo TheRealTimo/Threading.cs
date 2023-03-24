@@ -14,14 +14,18 @@ namespace market_scraper
         public MainPage()
         {
             this.InitializeComponent();
-            getChartData();
-        }
+          }
 
         public class soldPrices
         {
             public int soldPrice
             {
                 get; set;
+            }
+
+            public DateTime dateSold 
+            { 
+                get; set; 
             }
         }
 
@@ -60,30 +64,34 @@ namespace market_scraper
             }
         }
 
-        private void getChartData()
+
+
+        /*private void getChartData()
         {
             List<soldPrices> soldPrices = new List<soldPrices>();
             soldPrices.Add(new soldPrices()
             {
-                soldPrice = 50
+                soldPrice = 50,
+                dateSold = DateTime.Now
             }); ;
 
             soldPrices.Add(new soldPrices()
             {
-                soldPrice = 60
+                soldPrice = 60,
+                dateSold = DateTime.Now.AddDays(1)
             }); ;
 
             soldPrices.Add(new soldPrices()
             {
-                soldPrice = 70
+                soldPrice = 70,
+                dateSold = DateTime.Now.AddDays(2)
             }); ;
 
-            /*(Line.Series[0] as LineSeries).ItemsSource= soldPrices;*/
+            (Line.Series[0] as LineSeries).ItemsSource= soldPrices;
 
             if (myLineChart != null && myLineChart.Series != null && myLineChart.Series.Count > 0)
             {
                 (myLineChart.Series[0] as LineSeries).ItemsSource = soldPrices;
-            }
+            }*/
         }
     }
-}
