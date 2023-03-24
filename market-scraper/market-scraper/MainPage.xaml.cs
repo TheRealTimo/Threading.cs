@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using HtmlAgilityPack;
+using WinRTXamlToolkit.Controls.DataVisualization.Charting;
 
 namespace market_scraper
 {
@@ -13,7 +14,17 @@ namespace market_scraper
         public MainPage()
         {
             this.InitializeComponent();
+            getChartData();
         }
+
+        public class soldPrices
+        {
+            public int soldPrice
+            {
+                get; set;
+            }
+        }
+
 
         private async void btnRetrieveData_Click(object sender, RoutedEventArgs e)
         {
@@ -46,6 +57,32 @@ namespace market_scraper
                 {
                     tbSettingText.Text += price.ToString() + Environment.NewLine;
                 }
+            }
+        }
+
+        private void getChartData()
+        {
+            List<soldPrices> soldPrices = new List<soldPrices>();
+            soldPrices.Add(new soldPrices()
+            {
+                soldPrice = 50
+            }); ;
+
+            soldPrices.Add(new soldPrices()
+            {
+                soldPrice = 60
+            }); ;
+
+            soldPrices.Add(new soldPrices()
+            {
+                soldPrice = 70
+            }); ;
+
+            /*(Line.Series[0] as LineSeries).ItemsSource= soldPrices;*/
+
+            if (myLineChart != null && myLineChart.Series != null && myLineChart.Series.Count > 0)
+            {
+                (myLineChart.Series[0] as LineSeries).ItemsSource = soldPrices;
             }
         }
     }
