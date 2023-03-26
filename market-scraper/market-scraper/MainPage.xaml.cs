@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
+using System.Linq;
+using System.ServiceModel.Channels;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using HtmlAgilityPack;
-using WinRTXamlToolkit.Controls.DataVisualization.Charting;
+using Fizzler.Systems.HtmlAgilityPack;
+using System.Globalization;
+using MySql.Data.MySqlClient;
+using Windows.Services.Store;
 
 namespace market_scraper
 {
@@ -14,84 +19,121 @@ namespace market_scraper
         public MainPage()
         {
             this.InitializeComponent();
-          }
-
-        public class soldPrices
-        {
-            public int soldPrice
-            {
-                get; set;
-            }
-
-            public DateTime dateSold 
-            { 
-                get; set; 
-            }
         }
 
-
-        private async void btnRetrieveData_Click(object sender, RoutedEventArgs e)
+        private async void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            string soldItemsUrl = "https://www.ebay.com/sch/i.html?_from=R40&_nkw=air+jordan+1+bred&_sacat=0&rt=nc&LH_Sold=1&LH_Complete=1";
+            string searchTerm = SearchTermTextBox.Text;
+            int maxThreads = int.Parse(MaxThreadsTextBox.Text);
+            int pageNum = int.Parse(PageNumTextBox.Text);
 
-            // Send a GET request to the sold items page
-            using (HttpClient client = new HttpClient())
+
+            var products = await FetchAmazonPrices(searchTerm, maxThreads, pageNum);
+            ProductsDataGrid.ItemsSource = products;
+            
+            CultureInfo culture = new CultureInfo("nl-NL");
+            //CultureInfo needed to let the system know that the decimal separator is a comma and not a dot on amazon
+            
+            double minPrice = products.Min(p => double.Parse(p.Price.Replace("€", ""), culture));
+            double maxPrice = products.Max(p => double.Parse(p.Price.Replace("€", ""), culture));
+            double avgPrice = products.Average(p => double.Parse(p.Price.Replace("€", ""), culture));
+            
+            MinPriceTextBlock.Text += minPrice.ToString("0.00", culture);
+            MaxPriceTextBlock.Text += maxPrice.ToString("0.00", culture);
+            AvgPriceTextBlock.Text += avgPrice.ToString("0.00", culture);
+
+            MySqlConnection conn;
+           
+            conn = new MySqlConnection();
+           
+            conn.ConnectionString = "server=localhost;uid=root;pwd=;database=scraper;";
+
+            conn.Open();
+
+            foreach (var product in products)
             {
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0");
-                client.DefaultRequestHeaders.Add("Referer", "https://www.ebay.com/");
-                var response = await client.GetAsync(soldItemsUrl);
-                response.EnsureSuccessStatusCode();
-                string soldItemsHtml = await response.Content.ReadAsStringAsync();
-                
-                HtmlDocument soldItemsDoc = new HtmlDocument();
-                soldItemsDoc.LoadHtml(soldItemsHtml);
-                
-                List<double> soldItemPrices = new List<double>();
-                foreach (HtmlNode node in soldItemsDoc.DocumentNode.SelectNodes("//span[@class='s-item__price']"))
+                this.SaveToDatabase(conn, searchTerm, double.Parse(product.Price.Replace("€", "")), "amazon");
+            }
+
+            conn.Close();
+        }
+
+        private void SaveToDatabase(MySqlConnection conn, string searchTerm, double price, string platform)
+        {
+            MySqlCommand cmd;
+
+            cmd = new MySqlCommand();
+
+            try
+            {
+                cmd.Connection = conn;
+                cmd.CommandText = "INSERT INTO scraper (search_term, price, platform) VALUES (@searchTerm, @price, @platform);";
+
+                cmd.Parameters.Add("@searchTerm", MySqlDbType.String);
+                cmd.Parameters["@searchTerm"].Value = searchTerm;
+
+                cmd.Parameters.Add("@price", MySqlDbType.Double);
+                cmd.Parameters["@price"].Value = price;
+
+                cmd.Parameters.Add("@platform", MySqlDbType.String);
+                cmd.Parameters["@platform"].Value = platform;
+
+                cmd.ExecuteNonQuery();
+            }
+            catch (MySql.Data.MySqlClient.MySqlException ex)
+            {
+ 
+            }
+
+        }
+
+        private async Task<List<AmazonProduct>> FetchAmazonPrices(string searchTerm, int maxThreads, int pageNum)
+        {
+            var products = new List<AmazonProduct>();
+            var sem = new SemaphoreSlim(maxThreads);
+            
+            async Task ScrapePage(int page)
+            {
+                await sem.WaitAsync();
+                try
                 {
-                    string priceString = node.InnerText.Trim().Replace("$", "").Replace(",", "");
-                    double price;
-                    if (Double.TryParse(priceString, out price))
+                    string amazonUrl = $"https://www.amazon.nl/s?k={searchTerm}&page={page}";
+
+                    var web = new HtmlWeb();
+                    var doc = await web.LoadFromWebAsync(amazonUrl);
+
+                    var items = doc.DocumentNode.QuerySelectorAll(".s-result-item");
+
+                    foreach (var item in items)
                     {
-                        soldItemPrices.Add(price);
+                        string title = item.QuerySelector(".a-text-normal")?.InnerText.Trim();
+                        string price = item.QuerySelector(".a-price-whole")?.InnerText.Trim();
+
+                        if (title != null && price != null)
+                        {
+                            lock (products)
+                            {
+                                products.Add(new AmazonProduct { Name = title, Price = "€" + price });
+                            }
+                        }
                     }
                 }
-                
-                foreach (double price in soldItemPrices)
+                finally
                 {
-                    tbSettingText.Text += price.ToString() + Environment.NewLine;
+                    sem.Release();
                 }
             }
-        }
 
+            var tasks = new List<Task>();
 
-
-        /*private void getChartData()
-        {
-            List<soldPrices> soldPrices = new List<soldPrices>();
-            soldPrices.Add(new soldPrices()
+            for (int i = 1; i <= pageNum; i++)
             {
-                soldPrice = 50,
-                dateSold = DateTime.Now
-            }); ;
+                tasks.Add(ScrapePage(i));
+            }
 
-            soldPrices.Add(new soldPrices()
-            {
-                soldPrice = 60,
-                dateSold = DateTime.Now.AddDays(1)
-            }); ;
+            await Task.WhenAll(tasks);
 
-            soldPrices.Add(new soldPrices()
-            {
-                soldPrice = 70,
-                dateSold = DateTime.Now.AddDays(2)
-            }); ;
-
-            (Line.Series[0] as LineSeries).ItemsSource= soldPrices;
-
-            if (myLineChart != null && myLineChart.Series != null && myLineChart.Series.Count > 0)
-            {
-                (myLineChart.Series[0] as LineSeries).ItemsSource = soldPrices;
-            }*/
+            return products;
         }
     }
+}

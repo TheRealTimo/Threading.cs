@@ -5,37 +5,22 @@
     xmlns:local="using:market_scraper"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:chart="using:WinRTXamlToolkit.Controls.DataVisualization.Charting"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
-            <TextBox x:Name="tbSettingText"
-                     TextWrapping="Wrap"
-                     VerticalAlignment="Top"
-                     Height="300"
-                     Width="400"
-                     Margin="10"
-                     IsReadOnly="True"
-                     FontFamily="papyrus"
-                     FontSize="16" Foreground="Transparent" Background="#F209D6C1"/>
-
-            <Button x:Name="btnRetrieveData"
-                    Content="Retrieve Data"
-                    Click="btnRetrieveData_Click" RenderTransformOrigin="7.155,2.109" Foreground="White" Background="#2AFFFFFF" BorderBrush="#83FFFFFF"/>
-
+            <TextBox x:Name="SearchTermTextBox" Header="Search Term" Text="Airforce One"/>
+            <TextBox x:Name="MaxThreadsTextBox" Header="Max Threads" Text="5"/>
+            <TextBox x:Name="PageNumTextBox" Header="Page Numbers" Text="1" />
+            <Button x:Name="SearchButton" Content="Search" Click="SearchButton_Click" />
+            
+            <controls:DataGrid x:Name="ProductsDataGrid" AutoGenerateColumns="True"  Height="400" Width="500"/>
+            
+            <TextBlock x:Name="MinPriceTextBlock" Text="Minimum Price: " />
+            <TextBlock x:Name="MaxPriceTextBlock" Text="Maximum Price: " />
+            <TextBlock x:Name="AvgPriceTextBlock" Text="Average Price: " />
         </StackPanel>
-        <chart:Chart Name="MyChart">
-            <chart:Chart.Series>
-                <chart:LineSeries Title="Sales">
-                    <chart:DataPoint XValue="Jan" YValue="100" />
-                    <chart:DataPoint XValue="Feb" YValue="200" />
-                    <chart:DataPoint XValue="Mar" YValue="300" />
-                    <chart:DataPoint XValue="Apr" YValue="250" />
-                    <chart:DataPoint XValue="May" YValue="400" />
-                </chart:LineSeries>
-            </chart:Chart.Series>
-        </chart:Chart>
-    </Grid>
+    </ScrollViewer>
 </Page>
