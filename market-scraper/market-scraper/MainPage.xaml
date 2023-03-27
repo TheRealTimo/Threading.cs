@@ -15,6 +15,10 @@
             <TextBox x:Name="MaxThreadsTextBox" Header="Max Threads" Text="5"/>
             <TextBox x:Name="PageNumTextBox" Header="Page Numbers" Text="1" />
             <Button x:Name="SearchButton" Content="Search" Click="SearchButton_Click" />
+            <Button x:Name="LoadDataButton" Content="Load Data" Click="LoadDataButton_Click" />
+            <Button x:Name="ClearDatabaseButton" Content="Clear Database" Click="ClearDatabaseButton_Click" />
+
+
             
             <controls:DataGrid x:Name="ProductsDataGrid" AutoGenerateColumns="True"  Height="400" Width="500"/>
             
