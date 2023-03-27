@@ -17,12 +17,17 @@
                      Width="400"
                      Margin="10"
                      IsReadOnly="True"/>
+            <TextBox x:Name="MaxThreadsTextBox" Header="Max Threads" Text="5"/>
+            <TextBox x:Name="PageNumTextBox" Header="Page Numbers" Text="1" />
             <Button x:Name="btnRetrieveData"
                     Content="Retrieve Data"
                     HorizontalAlignment="Left"
                     Margin="10"
                     VerticalAlignment="Top"
                     Click="btnRetrieveData_Click"/>
+            <TextBox x:Name="txtSearchItem" PlaceholderText="Enter the item name"/>
+            <CheckBox x:Name="chkSold" Content="Retrieve sold listings"/>
+            <CheckBox x:Name="chkActive" Content="Retrieve active listings"/>
         </StackPanel>
     </Grid>
 </Page>
