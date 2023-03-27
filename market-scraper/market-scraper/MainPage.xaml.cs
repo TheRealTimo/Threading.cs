@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel.Channels;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using HtmlAgilityPack;
-using Fizzler.Systems.HtmlAgilityPack;
 using System.Globalization;
 
 namespace market_scraper
@@ -21,73 +20,97 @@ namespace market_scraper
 
         private async void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            string searchTerm = SearchTermTextBox.Text;
-            int maxThreads = int.Parse(MaxThreadsTextBox.Text);
-            int pageNum = int.Parse(PageNumTextBox.Text);
+            await HtmlToolTest.Main();
+            
+            
+            try
+            {
+                string searchTerm = SearchTermTextBox.Text;
+                int maxThreads = int.Parse(MaxThreadsTextBox.Text);
+                int pageNum = int.Parse(PageNumTextBox.Text);
 
 
-            var products = await FetchAmazonPrices(searchTerm, maxThreads, pageNum);
-            ProductsDataGrid.ItemsSource = products;
-            
-            CultureInfo culture = new CultureInfo("nl-NL");
-            //CultureInfo needed to let the system know that the decimal separator is a comma and not a dot on amazon
-            
-            double minPrice = products.Min(p => double.Parse(p.Price.Replace("€", ""), culture));
-            double maxPrice = products.Max(p => double.Parse(p.Price.Replace("€", ""), culture));
-            double avgPrice = products.Average(p => double.Parse(p.Price.Replace("€", ""), culture));
-            
-            MinPriceTextBlock.Text += minPrice.ToString("0.00", culture);
-            MaxPriceTextBlock.Text += maxPrice.ToString("0.00", culture);
-            AvgPriceTextBlock.Text += avgPrice.ToString("0.00", culture);
+                var products = await FetchAmazonPrices(searchTerm, maxThreads, pageNum);
+                ProductsDataGrid.ItemsSource = products;
+
+                CultureInfo culture = new CultureInfo("nl-NL");
+                //CultureInfo needed to let the system know that the decimal separator is a comma and not a dot on amazon
+
+                double minPrice = products.Min(p => double.Parse(p.Price.Replace("€", ""), culture));
+                double maxPrice = products.Max(p => double.Parse(p.Price.Replace("€", ""), culture));
+                double avgPrice = products.Average(p => double.Parse(p.Price.Replace("€", ""), culture));
+
+                MinPriceTextBlock.Text += minPrice.ToString("0.00", culture);
+                MaxPriceTextBlock.Text += maxPrice.ToString("0.00", culture);
+                AvgPriceTextBlock.Text += avgPrice.ToString("0.00", culture);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error in SearchButton_Click: " + ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
         }
 
         private async Task<List<AmazonProduct>> FetchAmazonPrices(string searchTerm, int maxThreads, int pageNum)
         {
-            var products = new List<AmazonProduct>();
-            var sem = new SemaphoreSlim(maxThreads);
-            
-            async Task ScrapePage(int page)
+            try
             {
-                await sem.WaitAsync();
-                try
+                var products = new List<AmazonProduct>();
+                var sem = new SemaphoreSlim(maxThreads);
+                var htmlTools = new HtmlTools();
+
+                async Task ScrapePage(int page)
                 {
-                    string amazonUrl = $"https://www.amazon.nl/s?k={searchTerm}&page={page}";
-
-                    var web = new HtmlWeb();
-                    var doc = await web.LoadFromWebAsync(amazonUrl);
-
-                    var items = doc.DocumentNode.QuerySelectorAll(".s-result-item");
-
-                    foreach (var item in items)
+                    await sem.WaitAsync();
+                    try
                     {
-                        string title = item.QuerySelector(".a-text-normal")?.InnerText.Trim();
-                        string price = item.QuerySelector(".a-price-whole")?.InnerText.Trim();
+                        string amazonUrl = $"https://www.amazon.nl/s?k={searchTerm}&page={page}";
 
-                        if (title != null && price != null)
+                        string html = await htmlTools.GetHtml(amazonUrl);
+                        var rootNode = htmlTools.ParseHtml(html);
+
+                        var items = htmlTools.SelectNodes(rootNode, ".s-result-item").ToList();
+
+                        foreach (var item in items)
                         {
-                            lock (products)
+                            string title = htmlTools.SelectNodes(item, ".a-text-normal").FirstOrDefault()?.InnerText
+                                .Trim();
+                            string price = htmlTools.SelectNodes(item, ".a-price-whole").FirstOrDefault()?.InnerText
+                                .Trim();
+
+                            if (title != null && price != null)
                             {
-                                products.Add(new AmazonProduct { Name = title, Price = "€" + price });
+                                lock (products)
+                                {
+                                    products.Add(new AmazonProduct { Name = title, Price = "€" + price });
+                                }
                             }
                         }
                     }
+                    finally
+                    {
+                        sem.Release();
+                    }
                 }
-                finally
+
+                var tasks = new List<Task>();
+
+                for (int i = 1; i <= pageNum; i++)
                 {
-                    sem.Release();
+                    tasks.Add(ScrapePage(i));
                 }
+
+                await Task.WhenAll(tasks);
+
+                return products;
             }
-
-            var tasks = new List<Task>();
-
-            for (int i = 1; i <= pageNum; i++)
+            catch (Exception ex)
             {
-                tasks.Add(ScrapePage(i));
+                Debug.WriteLine("Error in FetchAmazonPrices: " + ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+                return null;
             }
-
-            await Task.WhenAll(tasks);
-
-            return products;
         }
+
     }
 }
