@@ -21,6 +21,17 @@
             <TextBlock x:Name="MinPriceTextBlock" Text="Minimum Price: " />
             <TextBlock x:Name="MaxPriceTextBlock" Text="Maximum Price: " />
             <TextBlock x:Name="AvgPriceTextBlock" Text="Average Price: " />
+            
+            <!-- <Chart Grid.Row="1" Name="cpuLoad" Title="CPU Load Graph" > -->
+            <!--     <Chart.Series> -->
+            <!--         <LineSeries Title="Total Load" IndependentValueBinding="{Binding Time}" DependentValueBinding="{Binding TotalLoad}" /> -->
+            <!--         <LineSeries Title="Core Speed" IndependentValueBinding="{Binding Time}" DependentValueBinding="{Binding CoreSpeed}" /> -->
+            <!--     </Chart.Series> -->
+            <!-- </Chart> -->
+            
+            <Canvas x:Name="ChartCanvas" Height="300" Width="600" />
+
+            
         </StackPanel>
     </ScrollViewer>
 </Page>

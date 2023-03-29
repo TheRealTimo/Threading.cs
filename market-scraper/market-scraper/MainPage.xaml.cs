@@ -9,14 +9,75 @@ using Windows.UI.Xaml.Controls;
 using HtmlAgilityPack;
 using Fizzler.Systems.HtmlAgilityPack;
 using System.Globalization;
+using System.Diagnostics;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Shapes;
 
 namespace market_scraper
 {
     public sealed partial class MainPage : Page
     {
+        private DispatcherTimer _timer;
+        private PerformanceCounter _cpuCounter;
+        private List<double> _cpuUsageHistory = new List<double>();
+        
         public MainPage()
         {
             this.InitializeComponent();
+            InitializeCpuCounter();
+            InitializeTimer();
+        }
+        
+        private void InitializeCpuCounter()
+        {
+            _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+        }
+
+        private void InitializeTimer()
+        {
+            _timer = new DispatcherTimer();
+            _timer.Tick += Timer_Tick;
+            _timer.Interval = TimeSpan.FromMilliseconds(500);
+            _timer.Start();
+        }
+
+        private void Timer_Tick(object sender, object e)
+        {
+            double cpuUsage = _cpuCounter.NextValue();
+            _cpuUsageHistory.Add(cpuUsage);
+            if (_cpuUsageHistory.Count > 20)
+            {
+                _cpuUsageHistory.RemoveAt(0);
+            }
+            UpdateChart();
+        }
+
+        private void UpdateChart()
+        {
+            ChartCanvas.Children.Clear();
+            double maxValue = 100;
+            double minValue = 0;
+            double height = ChartCanvas.ActualHeight;
+            double width = ChartCanvas.ActualWidth;
+            double range = maxValue - minValue;
+            double segmentWidth = width / 20;
+            double segmentHeight = height / range;
+            double x = 0;
+            double y = height - (_cpuUsageHistory[0] - minValue) * segmentHeight;
+            for (int i = 1; i < _cpuUsageHistory.Count; i++)
+            {
+                double newY = height - (_cpuUsageHistory[i] - minValue) * segmentHeight;
+                Line line = new Line();
+                line.Stroke = new SolidColorBrush(Windows.UI.Colors.Black);
+                line.StrokeThickness = 2;
+                line.X1 = x;
+                line.Y1 = y;
+                line.X2 = x + segmentWidth;
+                line.Y2 = newY;
+                ChartCanvas.Children.Add(line);
+                x += segmentWidth;
+                y = newY;
+            }
         }
 
         private async void SearchButton_Click(object sender, RoutedEventArgs e)
