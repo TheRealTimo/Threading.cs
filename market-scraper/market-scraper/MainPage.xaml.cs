@@ -27,9 +27,12 @@ namespace market_scraper
             EbaySettingsTextBlock.Text = "";
 
             string searchTerm = SearchTermTextBox.Text;
+            bool searchSoldListings = chkSold.IsChecked == true;
+            bool searchActiveListings = chkActive.IsChecked == true;
             int maxThreads = int.Parse(MaxThreadsTextBox.Text);
             int pageNum = int.Parse(PageNumTextBox.Text);
 
+            var items = new List<EbayProduct>();
             var products = await FetchAmazonPrices(searchTerm, maxThreads, pageNum);
             ProductsDataGrid.ItemsSource = products;
 
@@ -51,6 +54,15 @@ namespace market_scraper
                 {
                     var client = new HttpClient();
                     string ebayUrl = "https://www.ebay.com/sch/i.html?_from=R40&_nkw=" + searchTerm.Replace(" ", "+") + "&_sacat=0";
+
+                    if (searchSoldListings)
+                    {
+                        ebayUrl += "&LH_Sold=1&LH_Complete=1";
+                    }
+                    else if (searchActiveListings)
+                    {
+                        ebayUrl += "&LH_TitleDesc=0&rt=nc";
+                    }
 
                     client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0");
                     client.DefaultRequestHeaders.Add("Referer", "https://www.ebay.com/");
@@ -83,6 +95,11 @@ namespace market_scraper
                             itemTitles.Add(title);
                         }
                     }
+
+                    for (int i = 0; i < itemPrices.Count && i < itemTitles.Count; i++)
+                    {
+                        items.Add(new EbayProduct { Name = itemTitles[i], Price = itemPrices[i] });
+                    }
                 }
                 finally
                 {
@@ -106,9 +123,9 @@ namespace market_scraper
             else
             {
                 string ebayResults = "";
-                for (int i = 1; i < itemPrices.Count; i++)
+                for (int i = 1; i < items.Count; i++)
                 {
-                    ebayResults += itemTitles[i] + " - $" + itemPrices[i].ToString("0.00") + Environment.NewLine;
+                    ebayResults += items[i].Name + " - $" + items[i].Price.ToString("0.00") + Environment.NewLine;
                 }
                 EbaySettingsTextBlock.Text = ebayResults;
             }
@@ -171,4 +188,10 @@ namespace market_scraper
             return products;
         }
     }
+}
+
+public class EbayProduct
+{
+    public string Name { get; set; }
+    public double Price { get; set; }
 }

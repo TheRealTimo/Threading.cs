@@ -14,6 +14,8 @@
             <TextBox x:Name="SearchTermTextBox" Header="Search Term" Text="Airforce One"/>
             <TextBox x:Name="MaxThreadsTextBox" Header="Max Threads" Text="5"/>
             <TextBox x:Name="PageNumTextBox" Header="Page Numbers" Text="1" />
+            <CheckBox x:Name="chkSold" Content="Retrieve sold listings"/>
+            <CheckBox x:Name="chkActive" Content="Retrieve active listings"/>
             <Button x:Name="SearchButton" Content="Search" Click="SearchButton_Click" />
             <TextBox x:Name="EbaySettingsTextBlock"
                      TextWrapping="Wrap"
