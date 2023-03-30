@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Fizzler.Systems.HtmlAgilityPack;
+using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Fizzler.Systems.HtmlAgilityPack;
-using HtmlAgilityPack;
 
 namespace market_scraper
 {
@@ -36,7 +36,7 @@ namespace market_scraper
 
                         if (title != null && price != null)
                         {
-                            
+
                             double productPrice = double.Parse(price.Replace("€", ""), NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands, _culture);
 
 

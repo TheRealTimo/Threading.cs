@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Toolkit.Uwp.UI.Controls.TextToolbarSymbols;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using System.Globalization;
+using WinRTXamlToolkit.Controls.DataVisualization.Charting;
 
 namespace market_scraper
 {
@@ -10,7 +12,7 @@ namespace market_scraper
     {
         public static readonly CultureInfo _culture = new CultureInfo("nl-NL");
         private readonly Database _database;
-        
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -26,7 +28,7 @@ namespace market_scraper
             bool searchSoldListings = chkSold.IsChecked.Value;
             bool searchAmazon = chkAmazon.IsChecked.Value;
             bool searchEbay = chkEbay.IsChecked.Value;
-            
+
             if (searchAmazon)
             {
                 var amazonProducts = await AmazonScraper.Scrape(searchTerm, maxThreads, pageNum, _database);
@@ -37,7 +39,7 @@ namespace market_scraper
                 var ebayProducts = await EbayScraper.Scrape(searchTerm, maxThreads, pageNum, searchActiveListings, searchSoldListings, _database);
                 EbayDataGrid.ItemsSource = ebayProducts;
             }
-            
+
             DisplayProductData();
 
         }
@@ -64,6 +66,12 @@ namespace market_scraper
                 var ebayProducts = await _database.GetProductsBySearchTermAndPlatformAsync(searchTerm, "eBay");
                 EbayDataGrid.ItemsSource = ebayProducts;
                 DisplayPrices(ebayProducts, EbayMinPriceTextBlock, EbayMaxPriceTextBlock, EbayAvgPriceTextBlock);
+
+            }
+
+            if (searchEbay && searchAmazon)
+            {
+
             }
         }
 
@@ -82,10 +90,47 @@ namespace market_scraper
         {
             await _database.ClearProductsAsync();
         }
-    }
-    
 
+        //private async List<Records> displayCharts()
+       
 
-        
-    
+        private async void ChartButton_click(object sender, RoutedEventArgs routedEventArgs)
+        {
+            var AmznProducts = await _database.GetProductsBySearchTermAndPlatformAsync(SearchTermTextBox.Text, "Amazon");
+            if (AmznProducts.Count == 0)
+            {
+                // Handle no products found
+                return;
+            }
+
+            List<Records> recordsAmzn = new List<Records>();
+            for (int i = 0; i < AmznProducts.Count; i++)
+            {
+                recordsAmzn.Add(new Records()
+                {
+                    //Name = AmznProducts[i].ProductName,
+                    Name = i.ToString(),
+                    Amount = AmznProducts[i].ProductPrice
+                });
+            }
+
+            (ScatterChart.Series[0] as ScatterSeries).ItemsSource = recordsAmzn;
+            (ColumnChart.Series[0] as ColumnSeries).ItemsSource = recordsAmzn;
+            (lineChart.Series[0] as LineSeries).ItemsSource = recordsAmzn;
+        }
+
+        private class Records
+        {
+            public string Name
+            {
+                get;
+                set;
+            }
+            public double Amount
+            {
+                get;
+                set;
+            }
+        }
     }
+}

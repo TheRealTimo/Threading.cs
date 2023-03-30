@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Microsoft.Data.Sqlite;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Microsoft.Data.Sqlite;
 
 namespace market_scraper
 {

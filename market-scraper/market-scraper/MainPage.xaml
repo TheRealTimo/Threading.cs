@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:charting="using:WinRTXamlToolkit.Controls.DataVisualization.Charting" xmlns:datavis="using:WinRTXamlToolkit.Controls.DataVisualization"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -40,13 +41,87 @@
                 <TextBlock x:Name="AmazonMinPriceTextBlock" Text="Minimum Price: " />
                 <TextBlock x:Name="AmazonMaxPriceTextBlock" Text="Maximum Price: " />
                 <TextBlock x:Name="AmazonAvgPriceTextBlock" Text="Average Price: " />
-                
+
                 <TextBlock Text="eBay Data" FontWeight="Bold" FontSize="18" Margin="0,10,0,0"/>
                 <controls:DataGrid x:Name="EbayDataGrid" AutoGenerateColumns="True" Height="400" Width="500" />
                 <TextBlock x:Name="EbayMinPriceTextBlock" Text="Minimum Price: " />
                 <TextBlock x:Name="EbayMaxPriceTextBlock" Text="Maximum Price: " />
                 <TextBlock x:Name="EbayAvgPriceTextBlock" Text="Average Price: " />
             </StackPanel>
+
+
+            <StackPanel Grid.Row="1" Grid.Column="1"  Grid.ColumnSpan="2" Margin="10">
+            <!-- chart -->
+                <Button x:Name="ChartButton" Content="ChartButton" Click="ChartButton_click" />
+
+                <charting:Chart
+                    x:Name="ScatterChart"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Height="600">
+                    <charting:Chart.LegendStyle>
+                        <Style TargetType="datavis:Legend">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="datavis:Legend">
+                                        <!-- Empty control template to remove the legend -->
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </charting:Chart.LegendStyle>
+                    <charting:ScatterSeries Margin="0"
+                                           IndependentValuePath="Name"
+                                           DependentValuePath="Amount"
+                                           IsSelectionEnabled="True"/>
+                </charting:Chart>
+
+                <!-- 2 cols of charts -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                    <charting:Chart
+                        x:Name="lineChart"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Height="300"
+                        Grid.Column="0">
+                            <charting:Chart.LegendStyle>
+                                <Style TargetType="datavis:Legend">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="datavis:Legend">
+                                                <!-- Empty control template to remove the legend -->
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </charting:Chart.LegendStyle>
+                                <charting:LineSeries Margin="0"
+                                             IndependentValuePath="Name"
+                                             DependentValuePath="Amount"
+                                             IsSelectionEnabled="True" 
+                                             FontSize="1" />
+                </charting:Chart>
+                <charting:Chart
+                        x:Name="ColumnChart"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Height="300"
+                        Grid.Column="1">
+                    <charting:ColumnSeries Margin="0"
+                                               CharacterSpacing="5"
+                                               IndependentValuePath="Name"
+                                               DependentValuePath="Amount"
+                                               IsSelectionEnabled="True" />
+                </charting:Chart>
+            </Grid>
+        </StackPanel>
+        <!-- chart END -->
+
         </Grid>
     </ScrollViewer>
 </Page>
