@@ -59,6 +59,7 @@ namespace market_scraper
                 var amazonProducts = await _database.GetProductsBySearchTermAndPlatformAsync(searchTerm, "Amazon");
                 AmazonDataGrid.ItemsSource = amazonProducts;
                 DisplayPrices(amazonProducts, AmazonMinPriceTextBlock, AmazonMaxPriceTextBlock, AmazonAvgPriceTextBlock);
+                DisplayCharts(amazonProducts, 0);
             }
 
             if (searchEbay)
@@ -66,12 +67,7 @@ namespace market_scraper
                 var ebayProducts = await _database.GetProductsBySearchTermAndPlatformAsync(searchTerm, "eBay");
                 EbayDataGrid.ItemsSource = ebayProducts;
                 DisplayPrices(ebayProducts, EbayMinPriceTextBlock, EbayMaxPriceTextBlock, EbayAvgPriceTextBlock);
-
-            }
-
-            if (searchEbay && searchAmazon)
-            {
-
+                //DisplayCharts(ebayProducts, 1);
             }
         }
 
@@ -91,45 +87,20 @@ namespace market_scraper
             await _database.ClearProductsAsync();
         }
 
-        //private async List<Records> displayCharts()
-       
-
-        private async void ChartButton_click(object sender, RoutedEventArgs routedEventArgs)
+        private async void DisplayCharts(List<Product> records, int i)
         {
-            var AmznProducts = await _database.GetProductsBySearchTermAndPlatformAsync(SearchTermTextBox.Text, "Amazon");
-            if (AmznProducts.Count == 0)
+            if (i == 0)
             {
-                // Handle no products found
-                return;
+                (ScatterChart.Series[0] as ScatterSeries).ItemsSource = records;
+                (ColumnChart.Series[0] as ColumnSeries).ItemsSource = records;
+                (lineChart.Series[0] as LineSeries).ItemsSource = records;
             }
-
-            List<Records> recordsAmzn = new List<Records>();
-            for (int i = 0; i < AmznProducts.Count; i++)
+            else if (i == 1)
             {
-                recordsAmzn.Add(new Records()
-                {
-                    //Name = AmznProducts[i].ProductName,
-                    Name = i.ToString(),
-                    Amount = AmznProducts[i].ProductPrice
-                });
-            }
 
-            (ScatterChart.Series[0] as ScatterSeries).ItemsSource = recordsAmzn;
-            (ColumnChart.Series[0] as ColumnSeries).ItemsSource = recordsAmzn;
-            (lineChart.Series[0] as LineSeries).ItemsSource = recordsAmzn;
-        }
-
-        private class Records
-        {
-            public string Name
-            {
-                get;
-                set;
-            }
-            public double Amount
-            {
-                get;
-                set;
+                //(ScatterChart.Series[1] as ScatterSeries).ItemsSource = records;
+                //(ColumnChart.Series[1] as ColumnSeries).ItemsSource = records;
+                //(lineChart.Series[1] as LineSeries).ItemsSource = records;
             }
         }
     }
