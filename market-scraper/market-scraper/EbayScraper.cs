@@ -46,7 +46,7 @@ namespace market_scraper
                     string title = item.QuerySelector(".s-item__title")?.InnerText.Trim();
                     string price = item.QuerySelector(".s-item__price")?.InnerText.Trim();
 
-                    if (title != null && price != null && double.TryParse(price.Replace("$", "").Replace(",", ""), NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands, _culture, out double productPrice))
+                    if (title != null && price != null && double.TryParse(price.Replace("$", "").Replace(",", ""), NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out double productPrice))
                     {
                         var product = new Product
                         {
