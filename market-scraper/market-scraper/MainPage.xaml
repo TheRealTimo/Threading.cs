@@ -10,21 +10,43 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel>
-            <TextBox x:Name="SearchTermTextBox" Header="Search Term" Text="Airforce One"/>
-            <TextBox x:Name="MaxThreadsTextBox" Header="Max Threads" Text="5"/>
-            <TextBox x:Name="PageNumTextBox" Header="Page Numbers" Text="1" />
-            <Button x:Name="SearchButton" Content="Search" Click="SearchButton_Click" />
-            <Button x:Name="LoadDataButton" Content="Load Data" Click="LoadDataButton_Click" />
-            <Button x:Name="ClearDatabaseButton" Content="Clear Database" Click="ClearDatabaseButton_Click" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
+            <StackPanel Grid.Row="0" Grid.Column="0" Margin="10">
+                <TextBlock Text="Search Criteria" FontWeight="Bold" FontSize="18"/>
+                <TextBox x:Name="SearchTermTextBox" Header="Search Term" Text="Airforce One"/>
+                <TextBox x:Name="MaxThreadsTextBox" Header="Max Threads" Text="5"/>
+                <TextBox x:Name="PageNumTextBox" Header="Page Numbers" Text="1" />
+                <CheckBox x:Name="chkAmazon" Content="Scrape Amazon" IsChecked="True" />
+                <CheckBox x:Name="chkEbay" Content="Scrape eBay" IsChecked="True" />
+                <CheckBox x:Name="chkActive" Content="Retrieve active listings (eBay)" IsChecked="True" />
+                <CheckBox x:Name="chkSold" Content="Retrieve sold listings (eBay)"/>
+                <Button x:Name="SearchButton" Content="Search" Click="SearchButton_Click" />
+                <Button x:Name="LoadDataButton" Content="Load Data" Click="LoadDataButton_Click" />
+                <Button x:Name="ClearDatabaseButton" Content="Clear Database" Click="ClearDatabaseButton_Click" />
+            </StackPanel>
 
-            
-            <controls:DataGrid x:Name="ProductsDataGrid" AutoGenerateColumns="True"  Height="400" Width="500"/>
-            
-            <TextBlock x:Name="MinPriceTextBlock" Text="Minimum Price: " />
-            <TextBlock x:Name="MaxPriceTextBlock" Text="Maximum Price: " />
-            <TextBlock x:Name="AvgPriceTextBlock" Text="Average Price: " />
-        </StackPanel>
+            <StackPanel Grid.Row="0" Grid.Column="1" Margin="10">
+                <TextBlock Text="Amazon Data" FontWeight="Bold" FontSize="18"/>
+                <controls:DataGrid x:Name="AmazonDataGrid" AutoGenerateColumns="True" Height="400" Width="500"/>
+                <TextBlock x:Name="AmazonMinPriceTextBlock" Text="Minimum Price: " />
+                <TextBlock x:Name="AmazonMaxPriceTextBlock" Text="Maximum Price: " />
+                <TextBlock x:Name="AmazonAvgPriceTextBlock" Text="Average Price: " />
+                
+                <TextBlock Text="eBay Data" FontWeight="Bold" FontSize="18" Margin="0,10,0,0"/>
+                <controls:DataGrid x:Name="EbayDataGrid" AutoGenerateColumns="True" Height="400" Width="500" />
+                <TextBlock x:Name="EbayMinPriceTextBlock" Text="Minimum Price: " />
+                <TextBlock x:Name="EbayMaxPriceTextBlock" Text="Maximum Price: " />
+                <TextBlock x:Name="EbayAvgPriceTextBlock" Text="Average Price: " />
+            </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Page>
