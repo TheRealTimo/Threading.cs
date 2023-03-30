@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Windows.Media.Capture;
+using Windows.Security.Cryptography.Core;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using WinRTXamlToolkit.Controls.DataVisualization.Charting;
 
 namespace market_scraper
@@ -59,7 +63,7 @@ namespace market_scraper
                 var amazonProducts = await _database.GetProductsBySearchTermAndPlatformAsync(searchTerm, "Amazon");
                 AmazonDataGrid.ItemsSource = amazonProducts;
                 DisplayPrices(amazonProducts, AmazonMinPriceTextBlock, AmazonMaxPriceTextBlock, AmazonAvgPriceTextBlock);
-                DisplayCharts(amazonProducts, 0);
+                DisplayAmazonChart(amazonProducts);
             }
 
             if (searchEbay)
@@ -67,7 +71,7 @@ namespace market_scraper
                 var ebayProducts = await _database.GetProductsBySearchTermAndPlatformAsync(searchTerm, "eBay");
                 EbayDataGrid.ItemsSource = ebayProducts;
                 DisplayPrices(ebayProducts, EbayMinPriceTextBlock, EbayMaxPriceTextBlock, EbayAvgPriceTextBlock);
-                //DisplayCharts(ebayProducts, 1);
+                DisplayEbayChart(ebayProducts);
             }
         }
 
@@ -87,21 +91,19 @@ namespace market_scraper
             await _database.ClearProductsAsync();
         }
 
-        private async void DisplayCharts(List<Product> records, int i)
+        private void DisplayAmazonChart(List<Product> records)
         {
-            if (i == 0)
-            {
-                (ScatterChart.Series[0] as ScatterSeries).ItemsSource = records;
-                (ColumnChart.Series[0] as ColumnSeries).ItemsSource = records;
-                (lineChart.Series[0] as LineSeries).ItemsSource = records;
-            }
-            else if (i == 1)
-            {
-
-                //(ScatterChart.Series[1] as ScatterSeries).ItemsSource = records;
-                //(ColumnChart.Series[1] as ColumnSeries).ItemsSource = records;
-                //(lineChart.Series[1] as LineSeries).ItemsSource = records;
-            }
+            (ScatterChart.Series[0] as ScatterSeries).ItemsSource = records;
+            (ColumnChart.Series[0] as ColumnSeries).ItemsSource = records;
+            (lineChart.Series[0] as LineSeries).ItemsSource = records;
         }
+
+        private void DisplayEbayChart(List<Product> records)
+        {
+            (ScatterChart.Series[1] as ScatterSeries).ItemsSource = records;
+            (ColumnChart.Series[1] as ColumnSeries).ItemsSource = records;
+            (lineChart.Series[1] as LineSeries).ItemsSource = records;
+        }
+
     }
 }

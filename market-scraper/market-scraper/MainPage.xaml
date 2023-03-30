@@ -81,6 +81,7 @@
                             AxisLabelStyle="{StaticResource RotatedAxisLabelStyle}">
                         </charting:CategoryAxis>
                     </charting:Chart.Axes>
+                    
                     <charting:Chart.LegendStyle>
                         <Style TargetType="datavis:Legend">
                             <Setter Property="Template">
@@ -96,7 +97,14 @@
                     Margin="0"
                     IndependentValuePath="ProductName"
                     DependentValuePath="ProductPrice"
-                    IsSelectionEnabled="True"/>
+                    Title="Amazon"/>
+
+                    <charting:ScatterSeries
+                    Margin="0"
+                    IndependentValuePath="ProductName"
+                    DependentValuePath="ProductPrice"
+                    IsSelectionEnabled="True" Title="Ebay"/>
+                    
                 </charting:Chart>
 
 
@@ -134,7 +142,13 @@
                                              IndependentValuePath="ProductName"
                                              DependentValuePath="ProductPrice"
                                              IsSelectionEnabled="True" 
-                                             FontSize="1" />
+                                             FontSize="1"  Title="Amazon"  />
+
+                        <charting:LineSeries Margin="0"
+                                             IndependentValuePath="ProductName"
+                                             DependentValuePath="ProductPrice"
+                                             IsSelectionEnabled="True" 
+                                             FontSize="1"  Title="Ebay" />
                     </charting:Chart>
                 
                     <charting:Chart
@@ -164,7 +178,13 @@
                                                CharacterSpacing="5"
                                                IndependentValuePath="ProductName"
                                                DependentValuePath="ProductPrice"
-                                               IsSelectionEnabled="True" />
+                                               IsSelectionEnabled="True"  Title="Amazon" />
+
+                        <charting:ColumnSeries Margin="0"
+                                               CharacterSpacing="5"
+                                               IndependentValuePath="ProductName"
+                                               DependentValuePath="ProductPrice"
+                                               IsSelectionEnabled="True"  Title="Ebay" />
                     </charting:Chart>
             </Grid>
         </StackPanel>
