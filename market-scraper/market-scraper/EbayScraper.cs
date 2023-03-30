@@ -30,7 +30,7 @@ namespace market_scraper
                     }
                     else if (searchActiveListings)
                     {
-                        ebayUrl = ebayUrl.Replace("&_sacat=0", "&_sacat=20081");
+                        ebayUrl += "&LH_TitleDesc=0&rt=nc";
                     }
 
                     ebayUrl += $"&_pgn={page}";
