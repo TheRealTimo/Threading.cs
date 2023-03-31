@@ -41,24 +41,24 @@ namespace market_scraper
 
             if (searchAmazon)
             {
-                AmazonDataGrid.ItemsSource = new ObservableCollection<Product>();
+                AmazonDataGrid.ItemsSource = new List<Product>();
                 scrapeTasks.Add(AmazonScraper.Scrape(searchTerm, maxThreads, pageNum, _database, async (product) =>
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.High, () =>
                     {
-                        ((ObservableCollection<Product>)AmazonDataGrid.ItemsSource).Add(product);
+                        ((List<Product>)AmazonDataGrid.ItemsSource).Add(product);
                     });
                 }));
             }
 
             if (searchEbay)
             {
-                EbayDataGrid.ItemsSource = new ObservableCollection<Product>();
+                EbayDataGrid.ItemsSource = new List<Product>();
                 scrapeTasks.Add(EbayScraper.Scrape(searchTerm, maxThreads, pageNum, searchActiveListings, searchSoldListings, _database, async (product) =>
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.High, () =>
                     {
-                        ((ObservableCollection<Product>)EbayDataGrid.ItemsSource).Add(product);
+                        ((List<Product>)EbayDataGrid.ItemsSource).Add(product);
                     });
                 }));
             }
@@ -67,7 +67,6 @@ namespace market_scraper
 
             await DisplayProductData();
         }
-
         
         private async void LoadDataButton_Click(object sender, RoutedEventArgs e)
         {
