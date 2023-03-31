@@ -10,8 +10,6 @@ namespace market_scraper
 {
     public class EbayScraper
     {
-        static CultureInfo _culture = MainPage._culture;
-
         internal static async Task Scrape(string searchTerm, int maxThreads, int pageNum, bool searchActiveListings, bool searchSoldListings, Database database, Func<Product, Task> productHandler)
         {
             var sem = new SemaphoreSlim(maxThreads);
