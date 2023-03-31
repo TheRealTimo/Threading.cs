@@ -1,8 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using System.Globalization;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.UI.Core;
 
 namespace market_scraper
 {
@@ -26,21 +31,38 @@ namespace market_scraper
             bool searchSoldListings = chkSold.IsChecked.Value;
             bool searchAmazon = chkAmazon.IsChecked.Value;
             bool searchEbay = chkEbay.IsChecked.Value;
-            
+
             if (searchAmazon)
             {
-                var amazonProducts = await AmazonScraper.Scrape(searchTerm, maxThreads, pageNum, _database);
-                AmazonDataGrid.ItemsSource = amazonProducts;
+                AmazonDataGrid.ItemsSource = new List<Product>();
+                await AmazonScraper.Scrape(searchTerm, maxThreads, pageNum, _database, async (product) =>
+                {
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        ((List<Product>)AmazonDataGrid.ItemsSource).Add(product);
+                    });
+                });
             }
+
             if (searchEbay)
             {
-                var ebayProducts = await EbayScraper.Scrape(searchTerm, maxThreads, pageNum, searchActiveListings, searchSoldListings, _database);
-                EbayDataGrid.ItemsSource = ebayProducts;
+                EbayDataGrid.ItemsSource = new List<Product>();
+                await EbayScraper.Scrape(searchTerm, maxThreads, pageNum, searchActiveListings, searchSoldListings, _database, async (product) =>
+                {
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        ((List<Product>)EbayDataGrid.ItemsSource).Add(product);
+                    });
+                });
             }
-            
-            DisplayProductData();
 
+            DisplayProductData();
         }
+
+
+
+
+
         private async void LoadDataButton_Click(object sender, RoutedEventArgs e)
         {
             DisplayProductData();
