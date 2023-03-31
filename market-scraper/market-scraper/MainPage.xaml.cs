@@ -1,13 +1,17 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Controls.TextToolbarSymbols;
+﻿using System;
+using Microsoft.Toolkit.Uwp.UI.Controls.TextToolbarSymbols;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Media.Capture;
 using Windows.Security.Cryptography.Core;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+using System.Collections.ObjectModel;
 using WinRTXamlToolkit.Controls.DataVisualization.Charting;
 
 namespace market_scraper
@@ -33,26 +37,44 @@ namespace market_scraper
             bool searchAmazon = chkAmazon.IsChecked.Value;
             bool searchEbay = chkEbay.IsChecked.Value;
 
+            List<Task> scrapeTasks = new List<Task>();
+
             if (searchAmazon)
             {
-                var amazonProducts = await AmazonScraper.Scrape(searchTerm, maxThreads, pageNum, _database);
-                AmazonDataGrid.ItemsSource = amazonProducts;
+                AmazonDataGrid.ItemsSource = new ObservableCollection<Product>();
+                scrapeTasks.Add(AmazonScraper.Scrape(searchTerm, maxThreads, pageNum, _database, async (product) =>
+                {
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.High, () =>
+                    {
+                        ((ObservableCollection<Product>)AmazonDataGrid.ItemsSource).Add(product);
+                    });
+                }));
             }
+
             if (searchEbay)
             {
-                var ebayProducts = await EbayScraper.Scrape(searchTerm, maxThreads, pageNum, searchActiveListings, searchSoldListings, _database);
-                EbayDataGrid.ItemsSource = ebayProducts;
+                EbayDataGrid.ItemsSource = new ObservableCollection<Product>();
+                scrapeTasks.Add(EbayScraper.Scrape(searchTerm, maxThreads, pageNum, searchActiveListings, searchSoldListings, _database, async (product) =>
+                {
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.High, () =>
+                    {
+                        ((ObservableCollection<Product>)EbayDataGrid.ItemsSource).Add(product);
+                    });
+                }));
             }
 
-            DisplayProductData();
+            await Task.WhenAll(scrapeTasks);
 
+            await DisplayProductData();
         }
+
+        
         private async void LoadDataButton_Click(object sender, RoutedEventArgs e)
         {
-            DisplayProductData();
+           await DisplayProductData();
         }
 
-        private async void DisplayProductData()
+        private async Task DisplayProductData()
         {
             string searchTerm = SearchTermTextBox.Text;
             bool searchAmazon = chkAmazon.IsChecked.Value;

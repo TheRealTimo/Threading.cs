@@ -12,9 +12,8 @@ namespace market_scraper
     {
         static CultureInfo _culture = MainPage._culture;
 
-        internal static async Task<List<Product>> Scrape(string searchTerm, int maxThreads, int pageNum, bool searchActiveListings, bool searchSoldListings, Database database)
+        internal static async Task Scrape(string searchTerm, int maxThreads, int pageNum, bool searchActiveListings, bool searchSoldListings, Database database, Func<Product, Task> productHandler)
         {
-            var products = new List<Product>();
             var sem = new SemaphoreSlim(maxThreads);
 
             async Task ScrapePage(int page)
@@ -59,10 +58,7 @@ namespace market_scraper
                             // Save the product to the database
                             await database.SaveProductAsync(product);
 
-                            lock (products)
-                            {
-                                products.Add(product);
-                            }
+                            await productHandler(product);
                         }
                     }
 
@@ -81,9 +77,6 @@ namespace market_scraper
             }
 
             await Task.WhenAll(tasks);
-
-            return products;
         }
-
     }
 }
